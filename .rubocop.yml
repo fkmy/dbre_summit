@@ -1,0 +1,7 @@
+require:
+  - ./lib/rubocop/cop/redundant_schema_index.rb
+
+rubocop/cop/RedundantSchemaIndex:
+  Enabled: true
+  Include:
+    - database/schemas/*.schema
