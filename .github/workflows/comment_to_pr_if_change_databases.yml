@@ -1,0 +1,21 @@
+name: Comment to PR if change databases
+
+on:
+  pull_request:
+    branches:
+      - develop
+    paths:
+      - 'database/schemas/**.schema'
+
+jobs:
+  coment-to-pr:
+    name: Comment to PR
+    if: ${{ github.actor != 'dependabot[bot]' && github.head_ref != 'main' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: db-schema-change
+          message: |
+            テーブル定義変更時には[DATABASE利用規約](https://)を確認してください
