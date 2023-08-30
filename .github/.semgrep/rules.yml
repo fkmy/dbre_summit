@@ -8,3 +8,16 @@ rules:
     languages:
       - generic
     severity: WARNING
+  - id: primary-key-pattern-when-creating-table
+    paths:
+      include:
+        - database/schemas/*.schema
+    pattern-either:
+      - pattern-regex: "create_table.*id: :bigint.*"
+      - patterns:
+          - pattern-regex: "create_table.*"
+          - pattern-not-regex: "create_table.*id:.*"
+    message: PK(id)のデータ型はinteger型ではなくbigint型にする必要があるか確認しましたか？ [主キーのデータ型の方針について](https://)を参照してみてください。
+    languages:
+      - generic
+    severity: WARNING
