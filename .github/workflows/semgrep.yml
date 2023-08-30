@@ -1,0 +1,33 @@
+name: semgrep
+on:
+  pull_request
+
+jobs:
+  semgrep:
+    name: runner / semgrep
+    runs-on: ubuntu-latest
+    if: (github.actor != 'dependabot[bot]' && github.head_ref != 'main')
+    steps:
+      - uses: reviewdog/action-setup@v1
+        with:
+          reviewdog_version: latest
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{secrets.GITHUB_TOKEN}}
+      - name: Run semgrep
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          docker run \
+            -v $(pwd):/workdir \
+            --workdir /workdir \
+            returntocorp/semgrep:latest \
+            --severity WARNING --json -f /workdir/.semgrep /workdir \
+          | jq -r '.results[] | "\(.path):\(.start.line):\(.start.col): \(.extra.message)"' \
+          | sed 's#^/workdir/##' \
+          | reviewdog \
+            -efm="%f:%l:%c: %m" \
+            -diff="git diff FETCH_HEAD" \
+            -level=warning \
+            -reporter=github-pr-review
